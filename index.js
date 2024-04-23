@@ -84,7 +84,7 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
     try {
         // Consultar si el estudiante existe
         const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
-        
+
         if (consultaExistencia.rows.length === 0) {
             console.log(`El registro con rut: ${rut} no existe`);
             return;
@@ -103,7 +103,7 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
 const eliminarEstudiante = async ({ rut }) => {
     try {
         const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
-        
+
         if (consultaExistencia.rows.length === 0) {
             console.log(`El registro con rut: ${rut} no existe`);
             return;
