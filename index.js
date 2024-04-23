@@ -39,6 +39,12 @@ console.log("****************************");
 const getEstudiantes = async () => {
     try {
         const res = await pool.query('SELECT * FROM ' + tabla);
+
+        if(res.rows.length === 0) {
+            console.log("Aun no hay datos en la tabla");
+            return;
+        }
+
         console.log("Registro actual: ", res.rows);
     } catch (error) {
         errores(error);
@@ -48,6 +54,11 @@ const getEstudiantes = async () => {
 // Ruta para obtener un estudiante por su rut
 const consultaRut = async ({ rut }) => {
     try {
+
+        if ( !rut ) {
+            return console.log("Por favor, proporcione el rut");
+        }
+
         const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
 
         if (consultaExistencia.rows.length === 0) {
@@ -82,6 +93,11 @@ const nuevoEstudiante = async ({ nombre, rut, curso, nivel }) => {
 // Ruta para actualizar los datos de un estudiante
 const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
     try {
+
+        if (!nombre || !rut || !curso || !nivel) {
+            return console.log("Por favor, proporciona nombre, rut, curso y nivel.");
+        }
+
         // Consultar si el estudiante existe
         const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
 
@@ -102,6 +118,11 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
 // Ruta para eliminar un estudiante por su rut
 const eliminarEstudiante = async ({ rut }) => {
     try {
+
+        if ( !rut ) {
+            return console.log("Por favor, proporcione el rut");
+        }
+
         const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
 
         if (consultaExistencia.rows.length === 0) {
