@@ -59,14 +59,14 @@ const consultaRut = async ({ rut }) => {
             return console.log("Por favor, proporcione el rut");
         }
 
-        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
+        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
 
         if (consultaExistencia.rows.length === 0) {
             console.log(`El registro con rut: ${rut} no existe`);
             return;
         }
 
-        const res = await pool.query(`SELECT * FROM ${tabla} WHERE rut='${rut}'`);
+        const res = await pool.query(`SELECT * FROM ${tabla} WHERE Rut='${rut}'`);
         console.log(res.rows[0]);
     } catch (error) {
         errores(error);
@@ -99,7 +99,7 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
         }
 
         // Consultar si el estudiante existe
-        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
+        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
 
         if (consultaExistencia.rows.length === 0) {
             console.log(`El registro con rut: ${rut} no existe`);
@@ -107,7 +107,7 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
         }
 
         // Actualizar el estudiante
-        const res = await pool.query(`UPDATE estudiantes SET nombre = '${nombre}', curso = '${curso}', nivel = '${nivel}' WHERE rut = '${rut}' RETURNING *`);
+        const res = await pool.query(`UPDATE estudiantes SET Nombre = '${nombre}', Curso = '${curso}', Nivel = '${nivel}' WHERE Rut = '${rut}' RETURNING *`);
         console.log(`Estudiante ${nombre} editado con éxito`);
         console.log("Estudiante actualizado: ", res.rows[0]);
     } catch (error) {
@@ -123,14 +123,14 @@ const eliminarEstudiante = async ({ rut }) => {
             return console.log("Por favor, proporcione el rut");
         }
 
-        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE rut = '${rut}'`);
+        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
 
         if (consultaExistencia.rows.length === 0) {
             console.log(`El registro con rut: ${rut} no existe`);
             return;
         }
 
-        const res = await pool.query(`DELETE FROM estudiantes WHERE rut = '${rut}' RETURNING *`);
+        const res = await pool.query(`DELETE FROM estudiantes WHERE Rut = '${rut}' RETURNING *`);
         console.log(`Registro de estudiante con rut: ${rut} eliminado`);
         console.log("Estudiante eliminado: ", res.rows[0]);
     } catch (error) {
