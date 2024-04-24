@@ -15,6 +15,10 @@ const pool = new Pool(config);
 // Nombre de la tabla en la base de datos
 let tabla = 'estudiantes';
 
+const letras = /^[a-zA-Z]+$/;
+const numeros = /^[0-9]+$/;
+const rutificador = /^[0-9.,-kK]+$/;
+
 // manejo del process.argv
 const argumentos = process.argv.slice(2);
 
@@ -40,7 +44,7 @@ const getEstudiantes = async () => {
     try {
         const res = await pool.query('SELECT * FROM ' + tabla);
 
-        if(res.rows.length === 0) {
+        if (res.rows.length === 0) {
             console.log("Aun no hay datos en la tabla");
             return;
         }
@@ -55,19 +59,25 @@ const getEstudiantes = async () => {
 const consultaRut = async ({ rut }) => {
     try {
 
-        if ( !rut ) {
+        if (!rut) {
             return console.log("Por favor, proporcione el rut");
         }
 
-        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
+        if (rutificador.test(rut) && rut.length >= 9 && rut.length <= 12) {
+            const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
 
-        if (consultaExistencia.rows.length === 0) {
-            console.log(`El registro con rut: ${rut} no existe`);
-            return;
+            if (consultaExistencia.rows.length === 0) {
+                console.log(`El registro con rut: ${rut} no existe`);
+                return;
+            }
+
+            const res = await pool.query(`SELECT * FROM ${tabla} WHERE Rut='${rut}'`);
+            console.log(res.rows[0]);
+
+        } else {
+            return console.log("Ingrese un rut valido");
         }
 
-        const res = await pool.query(`SELECT * FROM ${tabla} WHERE Rut='${rut}'`);
-        console.log(res.rows[0]);
     } catch (error) {
         errores(error);
     }
@@ -78,12 +88,17 @@ const nuevoEstudiante = async ({ nombre, rut, curso, nivel }) => {
     try {
 
         if (!nombre || !rut || !curso || !nivel) {
-            return console.log("Por favor, proporciona nombre, rut, curso y nivel.");
+            return console.log("Por favor, proporcione nombre, rut, curso y nivel.");
         }
 
-        const res = await pool.query(`INSERT INTO estudiantes VALUES ('${nombre}','${rut}','${curso}',${nivel}) RETURNING *`);
-        console.log(`Estudiante ${nombre} agregado con exito`);
-        console.log("Estudiante agregado: ", res.rows[0]);
+        if (letras.test(nombre) && rutificador.test(rut) && letras.test(curso) && numeros.test(nivel)) {
+            const res = await pool.query(`INSERT INTO estudiantes VALUES ('${nombre}','${rut}','${curso}',${nivel}) RETURNING *`);
+            console.log(`Estudiante ${nombre} agregado con exito`);
+            console.log("Estudiante agregado: ", res.rows[0]);
+
+        } else {
+            return console.log("Debe ingresar datos validos");
+        }
 
     } catch (error) {
         errores(error);
@@ -95,21 +110,27 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
     try {
 
         if (!nombre || !rut || !curso || !nivel) {
-            return console.log("Por favor, proporciona nombre, rut, curso y nivel.");
+            return console.log("Por favor, proporcione nombre, rut, curso y nivel.");
         }
 
-        // Consultar si el estudiante existe
-        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
+        if (letras.test(nombre) && rutificador.test(rut) && letras.test(curso) && numeros.test(nivel)) {
+            // Consultar si el estudiante existe
+            const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
 
-        if (consultaExistencia.rows.length === 0) {
-            console.log(`El registro con rut: ${rut} no existe`);
-            return;
+            if (consultaExistencia.rows.length === 0) {
+                console.log(`El registro con rut: ${rut} no existe`);
+                return;
+            }
+
+            // Actualizar el estudiante
+            const res = await pool.query(`UPDATE estudiantes SET Nombre = '${nombre}', Curso = '${curso}', Nivel = '${nivel}' WHERE Rut = '${rut}' RETURNING *`);
+            console.log(`Estudiante ${nombre} editado con éxito`);
+            console.log("Estudiante actualizado: ", res.rows[0]);
+
+        } else {
+            return console.log("Debe ingresar datos validos");
         }
 
-        // Actualizar el estudiante
-        const res = await pool.query(`UPDATE estudiantes SET Nombre = '${nombre}', Curso = '${curso}', Nivel = '${nivel}' WHERE Rut = '${rut}' RETURNING *`);
-        console.log(`Estudiante ${nombre} editado con éxito`);
-        console.log("Estudiante actualizado: ", res.rows[0]);
     } catch (error) {
         errores(error);
     }
@@ -119,20 +140,26 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
 const eliminarEstudiante = async ({ rut }) => {
     try {
 
-        if ( !rut ) {
+        if (!rut) {
             return console.log("Por favor, proporcione el rut");
         }
 
-        const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
+        if (rutificador.test(rut) && rut.length >= 9 && rut.length <= 12) {
+            const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
 
-        if (consultaExistencia.rows.length === 0) {
-            console.log(`El registro con rut: ${rut} no existe`);
-            return;
+            if (consultaExistencia.rows.length === 0) {
+                console.log(`El registro con rut: ${rut} no existe`);
+                return;
+            }
+
+            const res = await pool.query(`DELETE FROM estudiantes WHERE Rut = '${rut}' RETURNING *`);
+            console.log(`Registro de estudiante con rut: ${rut} eliminado`);
+            console.log("Estudiante eliminado: ", res.rows[0]);
+
+        } else {
+            return console.log("Ingrese un rut valido");
         }
 
-        const res = await pool.query(`DELETE FROM estudiantes WHERE Rut = '${rut}' RETURNING *`);
-        console.log(`Registro de estudiante con rut: ${rut} eliminado`);
-        console.log("Estudiante eliminado: ", res.rows[0]);
     } catch (error) {
         errores(error);
     }
