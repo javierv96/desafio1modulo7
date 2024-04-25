@@ -64,14 +64,14 @@ const consultaRut = async ({ rut }) => {
         }
 
         if (rutificador.test(rut) && rut.length >= 9 && rut.length <= 12) {
-            const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
+            const consultaExistencia = await pool.query('SELECT * FROM estudiantes WHERE Rut = $1', [rut]);
 
             if (consultaExistencia.rows.length === 0) {
                 console.log(`El registro con rut: ${rut} no existe`);
                 return;
             }
 
-            const res = await pool.query(`SELECT * FROM ${tabla} WHERE Rut='${rut}'`);
+            const res = await pool.query('SELECT * FROM estudiantes WHERE Rut = $1', [rut]);
             console.log(res.rows[0]);
 
         } else {
@@ -92,7 +92,10 @@ const nuevoEstudiante = async ({ nombre, rut, curso, nivel }) => {
         }
 
         if (letras.test(nombre) && rutificador.test(rut) && letras.test(curso) && numeros.test(nivel)) {
-            const res = await pool.query(`INSERT INTO estudiantes VALUES ('${nombre}','${rut}','${curso}',${nivel}) RETURNING *`);
+            const res = await pool.query(
+                'INSERT INTO estudiantes (nombre, rut, curso, nivel) VALUES ($1, $2, $3, $4) RETURNING *',
+                [nombre, rut, curso, nivel]
+            );
             console.log(`Estudiante ${nombre} agregado con exito`);
             console.log("Estudiante agregado: ", res.rows[0]);
 
@@ -115,7 +118,7 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
 
         if (letras.test(nombre) && rutificador.test(rut) && letras.test(curso) && numeros.test(nivel)) {
             // Consultar si el estudiante existe
-            const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
+            const consultaExistencia = await pool.query('SELECT * FROM estudiantes WHERE Rut = $1', [rut]);
 
             if (consultaExistencia.rows.length === 0) {
                 console.log(`El registro con rut: ${rut} no existe`);
@@ -123,7 +126,10 @@ const actualizarEstudiante = async ({ nombre, rut, curso, nivel }) => {
             }
 
             // Actualizar el estudiante
-            const res = await pool.query(`UPDATE estudiantes SET Nombre = '${nombre}', Curso = '${curso}', Nivel = '${nivel}' WHERE Rut = '${rut}' RETURNING *`);
+            const res = await pool.query(
+                'UPDATE estudiantes SET nombre = $1, curso = $2, nivel = $3 WHERE rut = $4 RETURNING *',
+                [nombre, curso, nivel, rut]
+            );
             console.log(`Estudiante ${nombre} editado con éxito`);
             console.log("Estudiante actualizado: ", res.rows[0]);
 
@@ -145,14 +151,16 @@ const eliminarEstudiante = async ({ rut }) => {
         }
 
         if (rutificador.test(rut) && rut.length >= 9 && rut.length <= 12) {
-            const consultaExistencia = await pool.query(`SELECT * FROM estudiantes WHERE Rut = '${rut}'`);
+            const consultaExistencia = await pool.query('SELECT * FROM estudiantes WHERE Rut = $1', [rut]);
 
             if (consultaExistencia.rows.length === 0) {
                 console.log(`El registro con rut: ${rut} no existe`);
                 return;
             }
 
-            const res = await pool.query(`DELETE FROM estudiantes WHERE Rut = '${rut}' RETURNING *`);
+            const res = await pool.query('DELETE FROM estudiantes WHERE rut = $1 RETURNING *',
+                [rut]
+            );
             console.log(`Registro de estudiante con rut: ${rut} eliminado`);
             console.log("Estudiante eliminado: ", res.rows[0]);
 
