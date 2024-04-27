@@ -1,4 +1,4 @@
-# Desafío - Always Music
+# Desafío - Always Music V2
 
 En este desafío validaremos nuestros conocimientos de Consultas con texto parametrizado, JSON como argumento de una consulta, Captura de errores.
 Lee todo el documento antes de comenzar el desarrollo grupal, para asegurarte de tener el máximo de puntaje y enfocar bien los esfuerzos.
